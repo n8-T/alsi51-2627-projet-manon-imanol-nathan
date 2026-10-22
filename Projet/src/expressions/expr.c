@@ -147,25 +147,33 @@ int eval_rpn(const int var_table[], const t_expr_rpn *expr_rpn) {
 
         switch (token.type) {
             case NUMBER:
-            case VARIABLE:
-                // TODO
+                push(&stack, token);
                 break;
-            
+            case VARIABLE:
+                int var_index = token.content.var - 'a';
+                token.type=NUMBER;
+                token.content.val=var_table[var_index];
+                push(&stack, token);
+                break;
+
             case OPERATOR: {
-                // TODO
+                int b = pop(&stack).content.val;
+                int a = pop(&stack).content.val;
+                int res =0;
+                res=apply_op(token.content.op,a,b);
+                t_expr_token token = token_of_int(res);
+                push(&stack, token);
                 break;
             }
 
             case PARENTHESIS:
-                // TODO
+                error_rpn();
                 break;
         }
     }
-
-    // TODO
-
+    int final_result = pop(&stack).content.val;
     destroy_stack(&stack);
-    return 0; // TODO
+    return final_result;
 }
 
 // Converts an expression in infix notation to Reverse Polish notation
